@@ -5,6 +5,7 @@
 // 20 人同時存筆記時，用 ScriptLock 排隊寫入，避免兩筆搶到同一列而覆蓋。
 
 const SHEET_NAME = '心靈筆記';
+const SPREADSHEET_ID = '1c-gbeX7MHeC9U-haX2jjjZG_uEzMX38a2hcyEan7h48';
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
@@ -62,7 +63,7 @@ function doGet(e) {
 }
 
 function getOrCreateSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let sheet = ss.getSheetByName(SHEET_NAME);
   const headers = [
     '收到時間', '關卡', '旅人ID', '情緒', '筆記內容', '記錄時間', '裝置資訊',

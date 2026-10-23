@@ -11,7 +11,7 @@ const SheetSync = {
     // 部署 Apps Script 後，把 /exec 結尾的網址貼在這裡
     // 南園需新開試算表。部署 Apps Script 後，把 /exec 網址貼在這裡。
     // 以 YOUR_ 開頭時不會送出，避免寫進宜蘭那張表。
-    ENDPOINT_URL: 'YOUR_NANYUAN_APPS_SCRIPT_EXEC_URL',
+    ENDPOINT_URL: 'https://script.google.com/macros/s/AKfycbzFmsIphTB9oNUr3ZHveSOpCgLQPVpzXz-eELxLLoJbCTPpwBp2c3NynDxwiN4T3c3j/exec',
 
     QUEUE_KEY: 'sheetSyncQueue',
 
