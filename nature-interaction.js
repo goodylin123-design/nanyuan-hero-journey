@@ -183,7 +183,7 @@
 
     function ensureThemePlayer() {
         if (!missionMusicPlayer) {
-            missionMusicPlayer = new Audio('nanyuan-theme.mp3');
+            missionMusicPlayer = new Audio('nanyuan-theme.mp3?v=20261023b');
             missionMusicPlayer.preload = 'auto';
             missionMusicPlayer.addEventListener('play', function() {
                 setNatureButtonLabel('⏸️ 暫停《難得之緣》');
