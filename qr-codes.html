@@ -6,7 +6,7 @@
     <title>南園立牌 QR</title>
     <link rel="stylesheet" href="styles.css">
     <script src="site-config.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+    <script src="qrcode-generator.js"></script>
     <style>
         .qr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         .qr-card { background: white; border-radius: 16px; padding: 16px; text-align: center; }
@@ -46,22 +46,32 @@
             const title = document.createElement('h2');
             title.textContent = item[1];
             title.style.fontSize = '1.05rem';
-            const canvas = document.createElement('canvas');
+            const image = document.createElement('img');
+            image.alt = item[1];
+            image.width = 220;
+            image.height = 220;
             const link = document.createElement('p');
             link.textContent = item[2];
             const download = document.createElement('a');
             download.textContent = '下載 ' + item[0] + '.png';
+            download.download = item[0] + '.png';
             download.style.display = 'inline-block';
             download.style.marginTop = '8px';
             card.appendChild(title);
-            card.appendChild(canvas);
+            card.appendChild(image);
             card.appendChild(link);
             card.appendChild(download);
             grid.appendChild(card);
-            QRCode.toCanvas(canvas, item[2], { width: 440, margin: 1 }, function() {
-                download.href = canvas.toDataURL('image/png');
-                download.download = item[0] + '.png';
-            });
+            try {
+                const qr = qrcode(0, 'M');
+                qr.addData(item[2]);
+                qr.make();
+                const dataUrl = qr.createDataURL(8, 8);
+                image.src = dataUrl;
+                download.href = dataUrl;
+            } catch (error) {
+                link.textContent = item[2] + '（QR 沒有產生）';
+            }
         });
     </script>
 </body>
