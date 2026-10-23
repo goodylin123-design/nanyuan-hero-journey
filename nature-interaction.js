@@ -11,6 +11,12 @@
     let isPlayingAudio = false;
     let missionMusicPlayer = null;
     let currentMissionData = null;
+    let natureRecorder = null;
+    let natureChunks = [];
+    let natureBlob = null;
+    let natureMime = '';
+    let naturePanelReady = false;
+    let natureBound = false;
 
     const EXTERNAL_TTS_ENABLED = true;
     const EXTERNAL_TTS_CHAR_LIMIT = 180;
@@ -138,57 +144,191 @@
 
         currentMissionData = missionData || currentMissionData;
 
-        if (!btnNatureInteraction) {
-            console.warn('[nature-interaction] 按鈕元素未找到');
+        if (!btnNatureInteraction || natureBound) {
             return;
         }
-
-        if (!qrReaderNature) {
-            console.warn('[nature-interaction] QR reader 元素未找到');
-            return;
-        }
+        natureBound = true;
 
         console.log('[nature-interaction] 初始化完成，任務資料:', missionData);
 
-        // 點擊按鈕直接開啟鏡頭掃描
-        // 在按鈕點擊時預先初始化語音合成（解決手機瀏覽器需要用戶交互的限制）
         btnNatureInteraction.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            
-            console.log('[nature-interaction] 按鈕被點擊，當前掃描狀態:', isScanning);
-            
-            // 預先初始化語音合成（解決手機瀏覽器限制）
-            if ('speechSynthesis' in window) {
-                // 獲取語音列表，這會觸發語音合成的初始化
-                window.speechSynthesis.getVoices();
-                // 播放一個無聲的語音來「解鎖」語音合成功能
-                try {
-                    const testUtterance = new SpeechSynthesisUtterance('');
-                    testUtterance.volume = 0;
-                    window.speechSynthesis.speak(testUtterance);
-                    window.speechSynthesis.cancel();
-                    console.log('[nature-interaction] 語音合成已預先初始化');
-                } catch (err) {
-                    console.warn('[nature-interaction] 預先初始化語音合成失敗:', err);
-                }
-            }
-            
-            if (isScanning) {
-                stopScanning();
-            } else {
-                // 直接開始掃描
-                startScanning(qrReaderNature, missionData);
-            }
+            startNatureMoment();
         });
 
-        // 關閉結果區域
         const btnCloseResult = document.getElementById('btn-close-nature-result');
         if (btnCloseResult) {
             btnCloseResult.addEventListener('click', () => {
+                if (missionMusicPlayer) missionMusicPlayer.pause();
+                setNatureButtonLabel(t('natureInteractionButton', '🌿 與自然互動'));
                 if (natureResultArea) {
                     natureResultArea.style.display = 'none';
                 }
+            });
+        }
+    }
+
+    function setNatureButtonLabel(text) {
+        const btn = document.getElementById('btn-nature-interaction');
+        if (!btn) return;
+        const span = btn.querySelector('span');
+        if (span) span.textContent = text;
+        else btn.textContent = text;
+    }
+
+    function natureTaskKey() {
+        return (currentMissionData && currentMissionData.key) || 'wave';
+    }
+
+    function ensureThemePlayer() {
+        if (!missionMusicPlayer) {
+            missionMusicPlayer = new Audio('nanyuan-theme.mp3');
+            missionMusicPlayer.preload = 'auto';
+            missionMusicPlayer.addEventListener('play', function() {
+                setNatureButtonLabel('⏸️ 暫停主題曲');
+                const status = document.getElementById('nature-music-status');
+                if (status) status.textContent = '正在播放南園主題曲。聽的時候，可以留下文字或錄音。';
+            });
+            missionMusicPlayer.addEventListener('pause', function() {
+                if (!missionMusicPlayer.ended) {
+                    setNatureButtonLabel('▶️ 繼續主題曲');
+                    const status = document.getElementById('nature-music-status');
+                    if (status) status.textContent = '主題曲已暫停。可以留下文字或錄音。';
+                }
+            });
+            missionMusicPlayer.addEventListener('ended', function() {
+                setNatureButtonLabel('▶️ 再播一次');
+                const status = document.getElementById('nature-music-status');
+                if (status) status.textContent = '曲子播完了。可以留下文字或錄音。';
+            });
+        }
+        return missionMusicPlayer;
+    }
+
+    function buildNaturePanel(content) {
+        content.innerHTML = ''
+            + '<p id="nature-music-status" style="color:#334155;line-height:1.7;margin:0 0 12px;">正在播放南園主題曲。聽的時候，可以留下文字或錄音。</p>'
+            + '<textarea id="nature-note-text" rows="4" placeholder="寫下此刻的感受" style="width:100%;box-sizing:border-box;border:1px solid #CBD5E1;border-radius:12px;padding:12px;font-size:1rem;"></textarea>'
+            + '<div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">'
+            + '<button type="button" id="nature-record-btn" class="btn-nature-interaction">錄下聲音</button>'
+            + '<p id="nature-record-status" style="min-height:1.2em;margin:0;color:#64748B;"></p>'
+            + '<button type="button" id="nature-save-btn" class="btn-nature-interaction">保存到心靈筆記</button>'
+            + '</div>';
+
+        content.querySelector('#nature-record-btn').addEventListener('click', function(event) {
+            event.preventDefault();
+            toggleNatureRecording();
+        });
+        content.querySelector('#nature-save-btn').addEventListener('click', function(event) {
+            event.preventDefault();
+            saveNatureNote();
+        });
+        naturePanelReady = true;
+    }
+
+    function pickNatureMime() {
+        if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+        const types = ['audio/mp4', 'audio/aac', 'audio/webm;codecs=opus', 'audio/webm'];
+        for (let i = 0; i < types.length; i++) {
+            if (MediaRecorder.isTypeSupported(types[i])) return types[i];
+        }
+        return '';
+    }
+
+    async function toggleNatureRecording() {
+        const status = document.getElementById('nature-record-status');
+        const button = document.getElementById('nature-record-btn');
+        if (natureRecorder && natureRecorder.state === 'recording') {
+            natureRecorder.stop();
+            return;
+        }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+            if (status) status.textContent = '這個瀏覽器不能錄音，請改留文字。';
+            return;
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            natureMime = pickNatureMime();
+            natureRecorder = natureMime ? new MediaRecorder(stream, { mimeType: natureMime }) : new MediaRecorder(stream);
+            natureChunks = [];
+            natureBlob = null;
+            natureRecorder.ondataavailable = function(event) {
+                if (event.data && event.data.size > 0) natureChunks.push(event.data);
+            };
+            natureRecorder.onstop = function() {
+                stream.getTracks().forEach(function(track) { track.stop(); });
+                natureBlob = new Blob(natureChunks, { type: natureRecorder.mimeType || natureMime || 'audio/webm' });
+                if (status) status.textContent = '錄音完成，可以保存。';
+                if (button) button.textContent = '錄下聲音';
+            };
+            natureRecorder.start();
+            if (status) status.textContent = '正在錄音…再按一次結束。';
+            if (button) button.textContent = '停止錄音';
+        } catch (err) {
+            if (status) status.textContent = '無法使用麥克風，請改留文字。';
+        }
+    }
+
+    function saveNatureNote() {
+        if (natureRecorder && natureRecorder.state === 'recording') {
+            natureRecorder.stop();
+            setTimeout(saveNatureNote, 400);
+            return;
+        }
+        const textEl = document.getElementById('nature-note-text');
+        const status = document.getElementById('nature-record-status');
+        const text = textEl ? textEl.value.trim() : '';
+        if (!text && !natureBlob) {
+            if (status) status.textContent = '先寫一句，或錄一段聲音。';
+            return;
+        }
+        const note = {
+            id: Date.now(),
+            date: new Date().toLocaleString('zh-TW'),
+            content: text || '（語音記錄）',
+            emotion: '平靜',
+            mission: natureTaskKey(),
+            audio: !!natureBlob,
+            timestamp: Date.now()
+        };
+        try {
+            const notes = JSON.parse(localStorage.getItem('whisperNotes') || '[]');
+            notes.unshift(note);
+            localStorage.setItem('whisperNotes', JSON.stringify(notes));
+        } catch (err) {}
+        if (window.TravelerStore) {
+            window.TravelerStore.recordMindNote(note);
+            if (natureBlob && window.TravelerStore.saveNoteAudio) {
+                window.TravelerStore.saveNoteAudio(note.id, natureBlob);
+            }
+        }
+        natureBlob = null;
+        if (textEl) textEl.value = '';
+        if (status) status.textContent = '已保存到心靈筆記。';
+    }
+
+    function startNatureMoment() {
+        const area = document.getElementById('nature-result-area');
+        const content = document.getElementById('nature-result-content');
+        const title = document.getElementById('nature-result-title');
+        if (!area || !content) return;
+
+        area.style.display = 'block';
+        if (title) title.textContent = '南園主題曲';
+        if (!naturePanelReady) buildNaturePanel(content);
+
+        const player = ensureThemePlayer();
+        if (!player.paused && !player.ended) {
+            player.pause();
+            return;
+        }
+        if (player.ended) player.currentTime = 0;
+        const playPromise = player.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+            playPromise.catch(function() {
+                const status = document.getElementById('nature-music-status');
+                if (status) status.textContent = '瀏覽器擋住了自動播放。請再按一次「與自然互動」。';
             });
         }
     }
@@ -1132,4 +1272,22 @@
         stopScanning: stopScanning,
         triggerInteraction: triggerInteraction
     };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!document.getElementById('btn-nature-interaction')) return;
+        const file = (location.pathname.split('/').pop() || '').toLowerCase();
+        const keys = {
+            'wave.html': 'wave',
+            'rain.html': 'rain',
+            'dawn.html': 'dawn',
+            'mission4.html': 'mission4',
+            'mission5.html': 'mission5',
+            'mission6.html': 'mission6',
+            'mission7.html': 'mission7',
+            'mission8.html': 'mission8',
+            'mission9.html': 'mission9',
+            'mission10.html': 'mission10'
+        };
+        initNatureInteraction({ key: keys[file] || 'wave' });
+    });
 })();
