@@ -1,0 +1,373 @@
+// TravelerStore：集中管理「英雄之旅互動系統」的旅人行為資料
+// 可存放於 localStorage，也方便未來同步到後端
+
+const TRAVELER_STORAGE_KEY = 'travelerProfile';
+
+function loadTraveler() {
+    try {
+        const raw = localStorage.getItem(TRAVELER_STORAGE_KEY);
+        if (!raw) {
+            const now = new Date().toISOString();
+            return {
+                travelerId: `anon-${Date.now()}`,
+                createdAt: now,
+                lastActiveAt: now,
+                profile: {
+                    nickname: '蘭陽旅人',
+                    homeRegion: null,
+                    preferredLanguage: 'zh-TW'
+                },
+                journeyState: {
+                    currentMission: 'wave',
+                    unlockedMissions: ['wave'],
+                    completedMissions: [],
+                    lastCompletedMission: null,
+                    heroLevel: 1,
+                    totalPlaySessions: 0
+                },
+                missions: {
+                    wave: { completedCount: 0, notesCount: 0, selfRatings: [], totalTimeMinutes: 0, lastCompletedAt: null },
+                    rain: { completedCount: 0, notesCount: 0, selfRatings: [], totalTimeMinutes: 0, lastCompletedAt: null },
+                    dawn: { completedCount: 0, notesCount: 0, selfRatings: [], totalTimeMinutes: 0, lastCompletedAt: null }
+                },
+                sessions: [],
+                mindNotes: [],
+                esgMetrics: {
+                    distance: { totalKm: 0, sessions: [] },
+                    points: { total: 0, history: [], redeemed: [] },
+                    behaviorSummary: {
+                        totalMissionCompletions: 0,
+                        totalMindNotes: 0,
+                        avgSelfRatingOverall: null
+                    }
+                },
+                techMeta: {
+                    device: { type: null, os: null, browser: null },
+                    audio: { musicEnabled: true, voiceGuideEnabled: true },
+                    location: { gpsSuccessCount: 0, gpsFailCount: 0, testModeUsedCount: 0 }
+                }
+            };
+        }
+        return JSON.parse(raw);
+    } catch (e) {
+        console.error('無法解析 travelerProfile，將重新初始化:', e);
+        localStorage.removeItem(TRAVELER_STORAGE_KEY);
+        return loadTraveler();
+    }
+}
+
+function saveTraveler(state) {
+    try {
+        state.lastActiveAt = new Date().toISOString();
+        localStorage.setItem(TRAVELER_STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+        console.error('無法保存 travelerProfile:', e);
+    }
+}
+
+// 工具：重新計算整體平均自評分數
+function recomputeBehaviorSummary(state) {
+    const missions = state.missions || {};
+    let totalCompletions = 0;
+    let totalNotes = 0;
+    let sumRatings = 0;
+    let countRatings = 0;
+
+    ['wave', 'rain', 'dawn'].forEach(key => {
+        const m = missions[key];
+        if (!m) return;
+        totalCompletions += m.completedCount || 0;
+        totalNotes += m.notesCount || 0;
+        (m.selfRatings || []).forEach(r => {
+            sumRatings += r;
+            countRatings += 1;
+        });
+    });
+
+    state.esgMetrics.behaviorSummary.totalMissionCompletions = totalCompletions;
+    state.esgMetrics.behaviorSummary.totalMindNotes = totalNotes;
+    state.esgMetrics.behaviorSummary.avgSelfRatingOverall =
+        countRatings > 0 ? +(sumRatings / countRatings).toFixed(2) : null;
+}
+
+// 記錄：任務完成（由十關任務頁呼叫）
+// options:
+// - notesAdded: 本次新增的心靈筆記數量
+// - selfRating: 如有，旅人給這次任務的 1–5 分自評
+// - durationMinutes: 本次任務約莫花費時間（可以先不傳 / 未來補）
+// - mode: 'onSite' / 'test' / 'remote'
+// - sessionId: 若有整體 session 管理，可傳入
+function recordMissionCompleted(taskKey, options = {}) {
+    const {
+        notesAdded = 0,
+        selfRating = null,
+        durationMinutes = null,
+        mode = 'onSite',
+        sessionId = null
+    } = options;
+
+    const state = loadTraveler();
+    const now = new Date().toISOString();
+
+    // 初始化該任務欄位
+    if (!state.missions[taskKey]) {
+        state.missions[taskKey] = {
+            completedCount: 0,
+            notesCount: 0,
+            selfRatings: [],
+            totalTimeMinutes: 0,
+            lastCompletedAt: null
+        };
+    }
+
+    const mission = state.missions[taskKey];
+    mission.completedCount += 1;
+    mission.notesCount += notesAdded;
+    mission.lastCompletedAt = now;
+    if (durationMinutes && durationMinutes > 0) {
+        mission.totalTimeMinutes += durationMinutes;
+    }
+    if (selfRating && selfRating >= 1 && selfRating <= 5) {
+        mission.selfRatings.push(selfRating);
+    }
+
+    // 更新旅程狀態
+    if (!state.journeyState.completedMissions.includes(taskKey)) {
+        state.journeyState.completedMissions.push(taskKey);
+    }
+    state.journeyState.lastCompletedMission = taskKey;
+
+    // 若是依照順序解鎖，可以更新 currentMission / unlockedMissions
+    if (window.TaskProgress && typeof window.TaskProgress.getNextTask === 'function') {
+        const nextTask = window.TaskProgress.getNextTask();
+        state.journeyState.currentMission = nextTask;
+        if (nextTask && nextTask !== 'completed' && !state.journeyState.unlockedMissions.includes(nextTask)) {
+            state.journeyState.unlockedMissions.push(nextTask);
+        }
+    }
+
+    // 建立 session 紀錄（輕量版）
+    const sessionRecord = {
+        sessionId: sessionId || `sess-${Date.now()}`,
+        mission: taskKey,
+        completedAt: now,
+        mode,
+        durationMinutes: durationMinutes || null
+    };
+    state.sessions.push(sessionRecord);
+
+    // 更新 ESG 行為摘要
+    recomputeBehaviorSummary(state);
+
+    saveTraveler(state);
+}
+
+// 記錄：新增心靈筆記（由任務頁 / 主頁查看筆記功能呼叫）
+function recordMindNote(note) {
+    const state = loadTraveler();
+
+    const storedNote = {
+        id: note.id || Date.now(),
+        mission: note.mission || null,
+        date: note.date || new Date().toLocaleString('zh-TW'),
+        content: note.content || '',
+        emotion: note.emotion || null,
+        audio: !!note.audio,
+        timestamp: note.timestamp || Date.now(),
+        sessionId: note.sessionId || null,
+        selfRating: note.selfRating || null
+    };
+
+    state.mindNotes.unshift(storedNote);
+
+    // 若有指定任務，順便更新 missions.notesCount
+    if (storedNote.mission && state.missions[storedNote.mission]) {
+        state.missions[storedNote.mission].notesCount += 1;
+    }
+
+    recomputeBehaviorSummary(state);
+    saveTraveler(state);
+}
+
+const AUDIO_DB_NAME = 'whisperNoteAudio';
+const AUDIO_STORE_NAME = 'clips';
+const PHOTO_STORE_NAME = 'photos';
+const MEDIA_DB_VERSION = 2;
+
+function openAudioDb() {
+    return new Promise(function(resolve, reject) {
+        if (!window.indexedDB) {
+            reject(new Error('no indexedDB'));
+            return;
+        }
+        const req = indexedDB.open(AUDIO_DB_NAME, MEDIA_DB_VERSION);
+        req.onupgradeneeded = function() {
+            const db = req.result;
+            if (!db.objectStoreNames.contains(AUDIO_STORE_NAME)) {
+                db.createObjectStore(AUDIO_STORE_NAME);
+            }
+            if (!db.objectStoreNames.contains(PHOTO_STORE_NAME)) {
+                db.createObjectStore(PHOTO_STORE_NAME);
+            }
+        };
+        req.onsuccess = function() { resolve(req.result); };
+        req.onerror = function() { reject(req.error); };
+    });
+}
+
+function saveNoteAudio(noteId, blob) {
+    if (!noteId || !blob) return Promise.resolve();
+    return openAudioDb().then(function(db) {
+        return new Promise(function(resolve, reject) {
+            const tx = db.transaction(AUDIO_STORE_NAME, 'readwrite');
+            tx.objectStore(AUDIO_STORE_NAME).put(blob, String(noteId));
+            tx.oncomplete = function() { resolve(); };
+            tx.onerror = function() { reject(tx.error); };
+        });
+    }).catch(function(err) {
+        console.warn('[TravelerStore] 無法保存錄音:', err);
+    });
+}
+
+function getNoteAudioUrl(noteId) {
+    return openAudioDb().then(function(db) {
+        return new Promise(function(resolve, reject) {
+            const tx = db.transaction(AUDIO_STORE_NAME, 'readonly');
+            const req = tx.objectStore(AUDIO_STORE_NAME).get(String(noteId));
+            req.onsuccess = function() {
+                resolve(req.result ? URL.createObjectURL(req.result) : '');
+            };
+            req.onerror = function() { reject(req.error); };
+        });
+    }).catch(function() {
+        return '';
+    });
+}
+
+function saveTaskPhoto(taskKey, blob) {
+    if (!taskKey || !blob) return Promise.resolve();
+    return openAudioDb().then(function(db) {
+        return new Promise(function(resolve, reject) {
+            const tx = db.transaction(PHOTO_STORE_NAME, 'readwrite');
+            tx.objectStore(PHOTO_STORE_NAME).put(blob, String(taskKey));
+            tx.oncomplete = function() { resolve(); };
+            tx.onerror = function() { reject(tx.error); };
+        });
+    }).catch(function(err) {
+        console.warn('[TravelerStore] 無法保存照片:', err);
+    });
+}
+
+function getTaskPhotoUrl(taskKey) {
+    return openAudioDb().then(function(db) {
+        return new Promise(function(resolve, reject) {
+            const tx = db.transaction(PHOTO_STORE_NAME, 'readonly');
+            const req = tx.objectStore(PHOTO_STORE_NAME).get(String(taskKey));
+            req.onsuccess = function() {
+                resolve(req.result ? URL.createObjectURL(req.result) : '');
+            };
+            req.onerror = function() { reject(req.error); };
+        });
+    }).catch(function() {
+        return '';
+    });
+}
+
+function mountTaskPhoto(container, taskKey) {
+    if (!container || !taskKey) return;
+    getTaskPhotoUrl(taskKey).then(function(url) {
+        if (!url) {
+            container.innerHTML = '';
+            return;
+        }
+        container.innerHTML = '';
+        const image = document.createElement('img');
+        image.src = url;
+        image.alt = '這一關拍下的建築';
+        image.style.cssText = 'max-width:180px;width:100%;border-radius:12px;display:block;margin:12px 0;';
+        container.appendChild(image);
+    });
+}
+
+function attachNotePhotos(root) {
+    if (!root) return;
+    const nodes = root.querySelectorAll('[data-photo-mission]');
+    nodes.forEach(function(el) {
+        mountTaskPhoto(el, el.getAttribute('data-photo-mission'));
+    });
+}
+
+function attachNoteAudioPlayers(root) {
+    if (!root) return;
+    const nodes = root.querySelectorAll('[data-audio-id]');
+    nodes.forEach(function(el) {
+        const id = el.getAttribute('data-audio-id');
+        getNoteAudioUrl(id).then(function(url) {
+            if (!url) {
+                el.textContent = '🎙️ 這支手機沒有這段錄音檔';
+                return;
+            }
+            el.innerHTML = '';
+            const player = document.createElement('audio');
+            player.controls = true;
+            player.preload = 'metadata';
+            player.src = url;
+            el.appendChild(player);
+        });
+    });
+}
+
+function renderWhisperNotesList(notesList, emptyHtml) {
+    if (!notesList) return;
+    const notes = JSON.parse(localStorage.getItem('whisperNotes') || '[]');
+    const currentLang = window.I18n ? window.I18n.getCurrentLanguage() : 'zh-TW';
+    const t = window.I18n ? window.I18n.getTranslation(currentLang) : {};
+    if (notes.length === 0) {
+        notesList.innerHTML = emptyHtml || ('<p style="text-align: center; color: #64748B; padding: 20px;">' + (t.mindNotesEmpty || '親愛的旅人，你的心靈筆記本還是空的。') + '</p>');
+        return;
+    }
+    notesList.innerHTML = notes.map(function(note) {
+        const rating = note.rating ? (' · 評分 ' + note.rating) : '';
+        const audioBlock = note.audio
+            ? ('<div class="note-audio" data-audio-id="' + note.id + '">🎙️ 載入錄音中...</div>')
+            : '';
+        const photoBlock = note.mission
+            ? ('<div class="note-photo" data-photo-mission="' + note.mission + '"></div>')
+            : '';
+        return '<div class="note-item">' +
+            '<div class="note-date">' + (note.date || '') + '</div>' +
+            '<div class="note-content">' + (note.content || '') + '</div>' +
+            '<div class="note-emotion">' + (t.mindNotesEmotion || '情緒：') + (note.emotion || '') + (note.audio ? ' 🎙️' : '') + rating + '</div>' +
+            photoBlock +
+            audioBlock +
+            '</div>';
+    }).join('');
+    attachNoteAudioPlayers(notesList);
+    attachNotePhotos(notesList);
+}
+
+if (typeof window !== 'undefined') {
+    window.TravelerStore = {
+        load: loadTraveler,
+        save: saveTraveler,
+        getTravelerId: function() {
+            const state = loadTraveler();
+            if (!state.travelerId) {
+                state.travelerId = `anon-${Date.now()}`;
+            }
+            saveTraveler(state);
+            return state.travelerId;
+        },
+        recordMissionCompleted,
+        recordMindNote,
+        saveNoteAudio,
+        getNoteAudioUrl,
+        saveTaskPhoto,
+        getTaskPhotoUrl,
+        mountTaskPhoto,
+        renderWhisperNotesList
+    };
+    window.renderWhisperNotesList = renderWhisperNotesList;
+}
+
+

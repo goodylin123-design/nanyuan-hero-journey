@@ -1,0 +1,11 @@
+.cursor/
+.vercel/
+node_modules/
+.env
+.env.*
+*.exe
+__dummy__.ipynb
+Thumbs.db
+.DS_Store
+.vercel
+.env*

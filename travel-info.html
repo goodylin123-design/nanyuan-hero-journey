@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="英雄之旅@南園・南園地址與導航">
+    <title>南園怎麼來 - 英雄之旅@南園</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="ocean-background" aria-hidden="true">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+    </div>
+    
+    <div class="coastline" aria-hidden="true">
+        <div class="dune dune-front"></div>
+        <div class="dune dune-mid"></div>
+        <div class="dune dune-back"></div>
+        <div class="coastline-highlight"></div>
+    </div>
+    
+    <div class="container">
+        <!-- 語言選擇器 -->
+        <div class="language-selector" id="language-selector">
+            <button type="button" class="lang-toggle-btn" id="lang-toggle-btn" aria-label="選擇語言">
+                <span class="lang-icon">🌐</span>
+                <span class="lang-current" id="lang-current">繁體中文</span>
+                <span class="lang-arrow">▼</span>
+            </button>
+            <div class="lang-dropdown" id="lang-dropdown" style="display: none;">
+                <button type="button" class="lang-option" data-lang="zh-TW">繁體中文</button>
+                <button type="button" class="lang-option" data-lang="zh-CN">简体中文</button>
+                <button type="button" class="lang-option" data-lang="en">English</button>
+                <button type="button" class="lang-option" data-lang="ja">日本語</button>
+                <button type="button" class="lang-option" data-lang="ko">한국어</button>
+            </div>
+        </div>
+        
+        <header class="header">
+            <a href="app.html" class="back-link" data-i18n="backToHome">← 返回英雄之旅首頁</a>
+            <h1 class="title" data-i18n="travelInfoTitle">📋 旅行資訊指南</h1>
+            <p class="subtitle" data-i18n="travelInfoSubtitle">蘭陽海岸・完整旅行資訊</p>
+        </header>
+        
+        <main id="main-content" class="content">
+            <section class="card">
+                <h2>南園</h2>
+                <p>The One 南園人文客棧</p>
+                <p>305 新竹縣新埔鎮九芎湖 32 號</p>
+                <p style="margin-top:16px;">
+                    <a href="https://www.google.com/maps/search/?api=1&amp;query=305%E6%96%B0%E7%AB%B9%E7%B8%A3%E6%96%B0%E5%9F%94%E9%8E%AE%E4%B9%9D%E8%8A%8E%E6%B9%9632%E8%99%9F" target="_blank" rel="noopener">導航到南園</a>
+                </p>
+                <p style="margin-top:16px;line-height:1.7;">遊園旅人從榕蔭庭入口或服務中心開始。住宿旅人的入口在住宿區櫃檯與房內。園區內的用餐與服務，以現場公告為準。</p>
+            </section>
+        </main>
+    </div>
+    
+    <script src="i18n.js"></script>
+    <script src="task-progress.js"></script>
+    <script src="traveler-store.js"></script>
+    <script src="index-i18n.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var back = document.querySelector('.back-link');
+            if (back && back.getAttribute('href') === 'app.html') {
+                back.href = new URL('app.html', window.location.href).href;
+            }
+        });
+    </script>
+</body>
+</html>
+

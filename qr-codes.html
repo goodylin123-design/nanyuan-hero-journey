@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南園立牌 QR</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="site-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+    <style>
+        .qr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        .qr-card { background: white; border-radius: 16px; padding: 16px; text-align: center; }
+        .qr-card canvas, .qr-card img { width: 220px; height: 220px; }
+        .qr-card p { word-break: break-all; color: #475569; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 1100px; margin: 0 auto; padding: 30px 20px;">
+        <header class="header" style="text-align: center; margin-bottom: 24px;">
+            <h1 class="title">南園立牌 QR</h1>
+            <p class="subtitle">十關立牌，加上住客入口與遊園客入口。</p>
+            <p style="color:#475569;">正式網址寫在 site-config.js 的 NANYUAN_SITE_URL。還沒填時，用現在這個網址。</p>
+        </header>
+        <div class="qr-grid" id="qr-grid"></div>
+    </div>
+    <script>
+        const base = (window.NANYUAN_SITE_URL || location.origin).replace(/\/$/, '');
+        const items = [
+            ['wave', '榕蔭庭 NY01', base + '/wave.html?unlock=NY01'],
+            ['rain', '南樓 NY02', base + '/rain.html?unlock=NY02'],
+            ['dawn', '延爽門 NY03', base + '/dawn.html?unlock=NY03'],
+            ['mission4', '水風軒 NY04', base + '/mission4.html?unlock=NY04'],
+            ['mission5', '戲臺 NY05', base + '/mission5.html?unlock=NY05'],
+            ['mission6', '風檐 NY06', base + '/mission6.html?unlock=NY06'],
+            ['mission7', '孔雀亭 NY07', base + '/mission7.html?unlock=NY07'],
+            ['mission8', '水牛望月 NY08', base + '/mission8.html?unlock=NY08'],
+            ['mission9', '同心樓 NY09', base + '/mission9.html?unlock=NY09'],
+            ['mission10', '快覽亭 NY10', base + '/mission10.html?unlock=NY10'],
+            ['entry-stay', '住客入口', base + '/app.html?type=stay'],
+            ['entry-visit', '遊園客入口', base + '/app.html?type=visit']
+        ];
+        const grid = document.getElementById('qr-grid');
+        items.forEach(function(item) {
+            const card = document.createElement('section');
+            card.className = 'qr-card';
+            const title = document.createElement('h2');
+            title.textContent = item[1];
+            title.style.fontSize = '1.05rem';
+            const canvas = document.createElement('canvas');
+            const link = document.createElement('p');
+            link.textContent = item[2];
+            const download = document.createElement('a');
+            download.textContent = '下載 ' + item[0] + '.png';
+            download.style.display = 'inline-block';
+            download.style.marginTop = '8px';
+            card.appendChild(title);
+            card.appendChild(canvas);
+            card.appendChild(link);
+            card.appendChild(download);
+            grid.appendChild(card);
+            QRCode.toCanvas(canvas, item[2], { width: 440, margin: 1 }, function() {
+                download.href = canvas.toDataURL('image/png');
+                download.download = item[0] + '.png';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="英雄之旅@南園 - 園區平面圖與關卡">
+    <title>南園路線 - 英雄之旅@南園</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .route-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .route-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .route-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .route-step-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid rgba(56, 189, 248, 0.2);
+            position: relative;
+        }
+        
+        .route-step-number {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .route-step-title {
+            font-size: 1.3rem;
+            color: #0F172A;
+            margin: 15px 0 10px 0;
+            font-weight: 700;
+        }
+        
+        .route-step-location {
+            color: #3B82F6;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .route-step-description {
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .route-step-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-route-action {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-navigate {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+        }
+        
+        .btn-navigate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-start-task {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: white;
+        }
+        
+        .btn-start-task:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .route-summary {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(14, 165, 233, 0.05));
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(56, 189, 248, 0.2);
+        }
+        
+        .route-summary h3 {
+            color: #0F172A;
+            margin-bottom: 15px;
+        }
+        
+        .route-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .route-info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .route-info-label {
+            color: #64748B;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .route-info-value {
+            color: #0F172A;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        
+        .map-container {
+            width: 100%;
+            height: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            border: 2px solid rgba(56, 189, 248, 0.2);
+        }
+        
+        .route-tips {
+            background: #FEF3C7;
+            border-left: 4px solid #F59E0B;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .route-tips h4 {
+            color: #92400E;
+            margin-bottom: 10px;
+        }
+        
+        .route-tips ul {
+            color: #92400E;
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .route-tips li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ocean-background" aria-hidden="true">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+    </div>
+    
+    <div class="coastline" aria-hidden="true">
+        <div class="dune dune-front"></div>
+        <div class="dune dune-mid"></div>
+        <div class="dune dune-back"></div>
+        <div class="coastline-highlight"></div>
+    </div>
+    
+    <div class="container">
+        <!-- 語言選擇器 -->
+        <div class="language-selector" id="language-selector">
+            <button type="button" class="lang-toggle-btn" id="lang-toggle-btn" aria-label="選擇語言">
+                <span class="lang-icon">🌐</span>
+                <span class="lang-current" id="lang-current">繁體中文</span>
+                <span class="lang-arrow">▼</span>
+            </button>
+            <div class="lang-dropdown" id="lang-dropdown" style="display: none;">
+                <button type="button" class="lang-option" data-lang="zh-TW">繁體中文</button>
+                <button type="button" class="lang-option" data-lang="zh-CN">简体中文</button>
+                <button type="button" class="lang-option" data-lang="en">English</button>
+                <button type="button" class="lang-option" data-lang="ja">日本語</button>
+                <button type="button" class="lang-option" data-lang="ko">한국어</button>
+            </div>
+        </div>
+        
+        <header class="header">
+            <a href="app.html" class="back-link" data-i18n="backToHome">← 返回英雄之旅首頁</a>
+            <h1 class="title" data-i18n="routeTitle">南園路線</h1>
+            <p class="subtitle" data-i18n="routeSubtitle">南園・平面圖與關卡</p>
+            <p style="margin-top:16px;">
+                <a class="btn-route-action btn-navigate" style="display:inline-block;padding:12px 22px;border-radius:999px;background:#1F4D3A;color:white;text-decoration:none;font-weight:700;" href="https://www.google.com/maps/search/?api=1&amp;query=305%E6%96%B0%E7%AB%B9%E7%B8%A3%E6%96%B0%E5%9F%94%E9%8E%AE%E4%B9%9D%E8%8A%8E%E6%B9%9632%E8%99%9F" target="_blank" rel="noopener">導航到南園</a>
+            </p>
+        </header>
+        
+        <main class="content">
+            <div class="route-container">
+                <!-- 南園平面圖 -->
+                <section class="card" style="margin-bottom:24px;">
+                    <img src="images/nanyuan-map.jpg" alt="南園平面圖" style="width:100%;height:auto;border-radius:12px;display:block;">
+                </section>
+                <section class="route-summary">
+                    <h3>園區裡的關卡</h3>
+                    <div class="route-info">
+                        <div class="route-info-item">
+                            <div class="route-info-label">地址</div>
+                            <div class="route-info-value">九芎湖 32 號</div>
+                        </div>
+                        <div class="route-info-item">
+                            <div class="route-info-label">範圍</div>
+                            <div class="route-info-value">園區 300 公尺</div>
+                        </div>
+                        <div class="route-info-item">
+                            <div class="route-info-label">任務站點</div>
+                            <div class="route-info-value" id="route-stop-count">10 關</div>
+                        </div>
+                    </div>
+                </section>
+                <p style="color:#475569;line-height:1.7;">進入南園園區即可開始，各關可掃 QR 或拍下建築解鎖。不必照順序走。</p>
+                <section class="route-steps" id="nanyuan-station-list"></section>
+            </div>
+        </main>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="guest-type.js"></script>
+    <script src="task-progress.js"></script>
+    <script src="index-i18n.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var back = document.querySelector('.back-link');
+            if (back && back.getAttribute('href') === 'app.html') {
+                back.href = new URL('app.html', window.location.href).href;
+            }
+        });
+    </script>
+</body>
+</html>
+

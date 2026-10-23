@@ -1,0 +1,96 @@
+// 請整份貼到 Google 試算表「擴充功能 → Apps Script」後，
+// 「部署」→「管理部署作業」→ 鉛筆 → 版本選「新版本」→ 部署（網址不要變）。
+// 不需要執行任何函式，也不需要雲端硬碟權限。
+//
+// 20 人同時存筆記時，用 ScriptLock 排隊寫入，避免兩筆搶到同一列而覆蓋。
+
+const SHEET_NAME = '心靈筆記';
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(30000);
+  } catch (lockErr) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'busy', message: String(lockErr) }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  try {
+    const sheet = getOrCreateSheet();
+    const data = JSON.parse(e.postData.contents);
+
+    const row = [
+      Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy/MM/dd HH:mm:ss'),
+      data.mission || '',
+      data.travelerId || '',
+      data.emotion || '',
+      data.content || '',
+      data.date || '',
+      String(data.userAgent || '').replace(/,/g, ';'),
+      data.hasAudio ? '是' : '否',
+      data.rating || '',
+      data.hasAudio ? '有錄音（存在手機）' : '',
+      data.locationMode || '',
+      data.userLat || '',
+      data.userLng || '',
+      data.targetLat || '',
+      data.targetLng || '',
+      data.unlockMethod || '',
+      data.guestType || ''
+    ];
+    sheet.appendRow(row);
+    SpreadsheetApp.flush();
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'ok' }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'error', message: String(err) }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function doGet(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: 'alive' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getOrCreateSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  const headers = [
+    '收到時間', '關卡', '旅人ID', '情緒', '筆記內容', '記錄時間', '裝置資訊',
+    '是否錄音', '評分', '錄音備註',
+    '定位模式', '使用者緯度', '使用者經度', '關卡緯度', '關卡經度',
+    '解鎖方式', '客別'
+  ];
+
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    sheet.appendRow(headers);
+    sheet.setFrozenRows(1);
+    sheet.getRange('A:A').setNumberFormat('yyyy/mm/dd hh:mm:ss');
+    return sheet;
+  }
+
+  const existing = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+  let needHeader = false;
+  for (var i = 0; i < headers.length; i++) {
+    if (existing[i] !== headers[i]) {
+      needHeader = true;
+      break;
+    }
+  }
+  if (needHeader) {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sheet.setFrozenRows(1);
+    sheet.getRange('A:A').setNumberFormat('yyyy/mm/dd hh:mm:ss');
+  }
+  return sheet;
+}
