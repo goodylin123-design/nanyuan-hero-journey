@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="擺渡蘭陽英雄主題音樂播放器">
-    <title>🎵 英雄主題音樂 - 擺渡蘭陽</title>
+    <meta name="description" content="英雄之旅@南園主題曲尚未收錄">
+    <title>英雄主題音樂 - 英雄之旅@南園</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         .music-player-container {
@@ -223,110 +223,27 @@
         <header class="header">
             <a href="app.html" class="back-link" data-i18n="backToHome">← 返回英雄之旅首頁</a>
             <h1 class="title" data-i18n="musicPlayerTitle">🎵 英雄主題音樂</h1>
-            <p class="subtitle" data-i18n="musicPlayerSubtitle">擺渡蘭陽英雄之歌</p>
+            <p class="subtitle" data-i18n="musicPlayerSubtitle">南園主題曲尚未收錄</p>
         </header>
         
         <main class="content">
             <div class="music-player-container">
                 <section class="music-player-card">
-                    <h2 class="music-title" data-i18n="musicTitle">《擺渡蘭陽・英雄之旅》</h2>
-                    <p class="music-subtitle" data-i18n="musicSubtitle">英雄主題音樂 · 海岸療癒系</p>
-                    
-                    <audio id="hero-music-audio" loop playsinline>
-                        <source src="擺渡蘭陽英雄之旅.mp3" type="audio/mpeg">
-                        您的瀏覽器不支援音訊播放。
-                    </audio>
-                    <div class="music-controls">
-                        <button type="button" class="btn-music btn-play" id="btn-play-music">
-                            <span>▶️</span>
-                            <span data-i18n="btnPlayMusic">播放音樂</span>
-                        </button>
-                        <button type="button" class="btn-music btn-stop" id="btn-stop-music" style="display: none;">
-                            <span>⏹️</span>
-                            <span data-i18n="btnStopMusic">停止播放</span>
-                        </button>
-                    </div>
-                    
-                    <div id="music-status" style="color: #64748B; font-size: 0.9rem;">
-                        <span class="status-indicator" id="status-indicator"></span>
-                        <span id="status-text" data-i18n="ready">準備就緒</span>
-                    </div>
-                    
-                    <!-- 音量控制 -->
-                    <div style="margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 15px;">
-                        <label for="volume-control" style="color: #475569; font-size: 0.9rem;" data-i18n="volume">音量：</label>
-                        <input type="range" id="volume-control" min="0" max="100" value="70" style="width: 200px; cursor: pointer;">
-                        <span id="volume-value" style="color: #3B82F6; font-weight: 600; min-width: 40px;">70%</span>
-                    </div>
-                </section>
-                
-                <!-- 歌詞區塊 -->
-                <section class="card" style="margin-top: 30px; background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(254, 243, 199, 0.95));">
-                    <h3 style="color: #0F172A; margin-bottom: 20px; text-align: center; font-size: 1.5rem;" data-i18n="lyrics">📝 歌詞</h3>
-                    <p style="text-align: center; color: #64748B; font-size: 0.85rem; margin-bottom: 16px;" data-i18n="lyricsCredit">本歌曲由林攸信於2026/1/6與AI共同協作生成</p>
-                    <div class="lyrics-container" style="line-height: 2; color: #334155; font-size: 1.05rem; text-align: center; padding: 20px;">
-                        <div class="lyrics-verse" style="margin-bottom: 25px;">
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse1Line1">請來蘭陽，浪為你點燈</p>
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse1Line2">海的呼吸，靠近一個人</p>
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse1Line3">世界退場，只留下里程</p>
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse1Line4">霧把名字，還給心門</p>
-                        </div>
-                        
-                        <div class="lyrics-chorus" style="margin: 25px 0; padding: 20px; background: rgba(245, 158, 11, 0.1); border-radius: 12px; border-left: 4px solid #F59E0B;">
-                            <p style="margin: 8px 0; color: #92400E; font-weight: 600; font-size: 1.1rem;" data-i18n="lyricsChorus1Line1">感受孤獨・找回自己</p>
-                            <p style="margin: 8px 0; color: #92400E; font-weight: 600; font-size: 1.1rem;" data-i18n="lyricsChorus1Line2">在龜山島看見舊日的你</p>
-                            <p style="margin: 8px 0; color: #92400E; font-weight: 600; font-size: 1.1rem;" data-i18n="lyricsChorus1Line3">一步一步・英雄之旅</p>
-                            <p style="margin: 8px 0; color: #92400E; font-weight: 600; font-size: 1.1rem;" data-i18n="lyricsChorus1Line4">腳印會遠去，意義更清晰</p>
-                        </div>
-                        
-                        <div class="lyrics-verse" style="margin-bottom: 25px;">
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse2Line1">請來蘭陽・把心交給四季</p>
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse2Line2">AI 的聲音陪你問問題</p>
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse2Line3">海那麼安靜不是逃離</p>
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse2Line4">而是走回，真的自己</p>
-                        </div>
-                        
-                        <div class="lyrics-verse" style="margin-bottom: 25px;">
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse3Line1">稻香很深，風經過利澤</p>
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse3Line2">河流倒影，問我值不值得</p>
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse3Line3">拾起落葉，在傳藝時刻</p>
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse3Line4">放下的人，變得自由了</p>
-                        </div>
-                        
-                        <div class="lyrics-chorus" style="margin: 25px 0; padding: 20px; background: rgba(245, 158, 11, 0.1); border-radius: 12px; border-left: 4px solid #F59E0B;">
-                            <p style="margin: 8px 0; color: #92400E; font-weight: 600; font-size: 1.1rem;" data-i18n="lyricsChorus2Line1">感受孤獨・找回自己</p>
-                            <p style="margin: 8px 0; color: #92400E; font-weight: 600; font-size: 1.1rem;" data-i18n="lyricsChorus2Line2">沙丘記得每段呼喊的潮汐</p>
-                            <p style="margin: 8px 0; color: #92400E; font-weight: 600; font-size: 1.1rem;" data-i18n="lyricsChorus2Line3">星空之下・英雄之旅</p>
-                            <p style="margin: 8px 0; color: #92400E; font-weight: 600; font-size: 1.1rem;" data-i18n="lyricsChorus2Line4">我會與昨日，好好分離</p>
-                        </div>
-                        
-                        <div class="lyrics-verse" style="margin-bottom: 25px;">
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse4Line1">請來蘭陽・把心交給四季</p>
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse4Line2">AI 的遊戲帶我回原地</p>
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse4Line3">路的盡頭不是日期</p>
-                            <p style="margin: 8px 0; color: #0F172A; font-weight: 500;" data-i18n="lyricsVerse4Line4">是更好的，我的自己</p>
-                        </div>
-                        
-                        <div class="lyrics-outro" style="margin-top: 30px; padding: 20px; background: rgba(56, 189, 248, 0.1); border-radius: 12px; border-left: 4px solid #3B82F6;">
-                            <p style="margin: 8px 0; color: #1E40AF; font-weight: 600; font-size: 1.15rem;" data-i18n="lyricsOutroLine1">請來蘭陽</p>
-                            <p style="margin: 8px 0; color: #1E40AF; font-weight: 600; font-size: 1.15rem;" data-i18n="lyricsOutroLine2">感受孤獨</p>
-                            <p style="margin: 8px 0; color: #1E40AF; font-weight: 600; font-size: 1.15rem;" data-i18n="lyricsOutroLine3">找回自己</p>
-                        </div>
-                    </div>
+                    <h2 class="music-title" data-i18n="musicTitle">《南園・英雄之旅》</h2>
+                    <p class="music-subtitle" data-i18n="musicSubtitle">曲子準備好之後，會從這一頁播放。</p>
+                    <p style="color:#475569;line-height:1.7;margin:16px 0 0;">南園主題曲還沒有收進這個網站。這一頁先不播放其他園區的歌。</p>
                 </section>
                 
                 <section class="card" style="margin-top: 30px;">
                     <h3 data-i18n="aboutSong">💡 關於這首歌</h3>
                     <p style="color: #475569; line-height: 1.7;" data-i18n="aboutSongDesc">
-                        《擺渡蘭陽・英雄之旅》是專為「擺渡蘭陽英雄之旅」創作的主題音樂。
-                        歌詞描繪了在蘭陽海岸的旅程中，透過感受孤獨、找回自己的英雄之旅。
-                        從龜山島到沙丘，從利澤到傳藝，每一步都是與昨日分離、走向更好的自己的過程。
+                        南園主題曲還沒有收進這個網站。這一頁先不播放其他園區的歌，也不顯示那份歌詞。
                     </p>
                     <p style="color: #475569; line-height: 1.7; margin-top: 15px;" data-i18n="aboutSongDesc2">
-                        這首音樂適合在進行任務時播放，營造海岸療癒氛圍，陪伴你走過每一段內在成長的旅程。
+                        曲子收錄之後，會從這一頁播放。
                     </p>
                     <p style="color: #64748B; margin-top: 15px; font-size: 0.9rem;" data-i18n="musicTip">
-                        💡 提示：建議使用耳機或外接喇叭以獲得最佳聆聽體驗。播放時可搭配歌詞一起欣賞。
+                        目前沒有可播放的音檔。
                     </p>
                 </section>
             </div>

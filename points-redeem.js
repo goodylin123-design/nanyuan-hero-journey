@@ -3,65 +3,7 @@
 
 // 可兌換項目清單（使用 i18n 翻譯）
 function getRedeemItems() {
-    const t = window.I18n ? window.I18n.getTranslation(window.I18n.getCurrentLanguage()) : {};
-    return [
-        {
-            id: 'discount-50',
-            name: t.redeemItemDiscount50 || '合作店家消費折抵 50 元',
-            description: t.redeemItemDiscount50Desc || '可在指定合作店家使用，折抵消費金額 50 元',
-            points: 500,
-            type: 'discount',
-            icon: '💰'
-        },
-        {
-            id: 'discount-100',
-            name: t.redeemItemDiscount100 || '合作店家消費折抵 100 元',
-            description: t.redeemItemDiscount100Desc || '可在指定合作店家使用，折抵消費金額 100 元',
-            points: 1000,
-            type: 'discount',
-            icon: '💵'
-        },
-        {
-            id: 'discount-200',
-            name: t.redeemItemDiscount200 || '合作店家消費折抵 200 元',
-            description: t.redeemItemDiscount200Desc || '可在指定合作店家使用，折抵消費金額 200 元',
-            points: 2000,
-            type: 'discount',
-            icon: '💴'
-        },
-        {
-            id: 'meal-voucher',
-            name: t.redeemItemMealVoucher || '在地餐廳餐券',
-            description: t.redeemItemMealVoucherDesc || '可在頭城、壯圍、蘇澳指定餐廳使用',
-            points: 800,
-            type: 'voucher',
-            icon: '🍽️'
-        },
-        {
-            id: 'museum-ticket',
-            name: t.redeemItemMuseumTicket || '蘭陽博物館門票',
-            description: t.redeemItemMuseumTicketDesc || '免費參觀蘭陽博物館（原價 100 元）',
-            points: 1000,
-            type: 'ticket',
-            icon: '🎫'
-        },
-        {
-            id: 'surf-rental',
-            name: t.redeemItemSurfRental || '衝浪板租借優惠券',
-            description: t.redeemItemSurfRentalDesc || '蜜月灣衝浪板租借 8 折優惠（原價 500-800 元）',
-            points: 600,
-            type: 'voucher',
-            icon: '🏄'
-        },
-        {
-            id: 'accommodation-discount',
-            name: t.redeemItemAccommodation || '住宿折價券',
-            description: t.redeemItemAccommodationDesc || '指定民宿/旅館住宿 9 折優惠',
-            points: 1500,
-            type: 'voucher',
-            icon: '🏨'
-        }
-    ];
+    return [];
 }
 
 let currentRedeemItem = null;
@@ -110,6 +52,11 @@ function renderRedeemItems() {
     const REDEEM_ITEMS = getRedeemItems();
     const t = window.I18n ? window.I18n.getTranslation(window.I18n.getCurrentLanguage()) : {};
     
+    if (!REDEEM_ITEMS.length) {
+        grid.innerHTML = '<p class="empty-message">南園的點數兌換還沒有開放。園內步行距離量好之前，不會累積點數，也不提供其他園區的兌換項目。</p>';
+        return;
+    }
+
     grid.innerHTML = REDEEM_ITEMS.map(item => {
         const canRedeem = balance >= item.points;
         return `

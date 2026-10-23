@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.AIDialogue) {
         window.AIDialogue.init('dawn', {
             voiceGuideKey: 'voiceGuideDawn',
-            defaultGuideText: '請慢慢沿著沙丘往前走，感受腳掌踩在沙上的重量與紋理。每走一步，低頭看看自己留下的腳印，問問自己：這些腳印代表了你哪些過去？'
+            defaultGuideText: '先站在門的一側，不要急著走過去。看看門的另一邊有什麼。想一件你一直想做、卻遲遲沒開始的事。'
         });
     }
     
