@@ -1,5 +1,46 @@
 // 任務頁面專用腳本 - QR 碼掃描功能
+function mountNextStationLink() {
+    const section = document.querySelector('section.qr-section');
+    if (!section || document.getElementById('btn-next-station')) return;
+
+    const file = (location.pathname.split('/').pop() || '').toLowerCase();
+    const stations = window.GuestType && window.GuestType.stations ? window.GuestType.stations : [];
+    const allowed = window.GuestType && window.GuestType.tasksForCurrent
+        ? window.GuestType.tasksForCurrent()
+        : stations.map(function(station) { return station.key; });
+    const index = stations.findIndex(function(station) { return station.href === file; });
+    if (index < 0) return;
+
+    const upcoming = stations.slice(index + 1).find(function(station) {
+        return allowed.indexOf(station.key) !== -1;
+    });
+    if (!upcoming) return;
+
+    const codes = window.UnlockGate && window.UnlockGate.codes;
+    const code = codes ? codes[upcoming.key] : '';
+    const link = document.createElement('a');
+    link.id = 'btn-next-station';
+    link.className = 'btn-next-station';
+    link.href = upcoming.href + (code ? ('?unlock=' + encodeURIComponent(code)) : '');
+
+    function label() {
+        const text = window.I18n && window.I18n.t ? window.I18n.t('goNextStation') : '到下一關';
+        return text && text !== 'goNextStation' ? text : '到下一關';
+    }
+
+    link.textContent = label();
+    const scanBtn = document.getElementById('btn-scan-qr');
+    if (scanBtn) scanBtn.insertAdjacentElement('afterend', link);
+    else section.appendChild(link);
+
+    window.addEventListener('languageChanged', function() {
+        link.textContent = label();
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    mountNextStationLink();
+
     const btnScanQR = document.getElementById('btn-scan-qr');
     const qrReader = document.getElementById('qr-reader');
     let html5QrcodeScanner = null;

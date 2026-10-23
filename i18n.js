@@ -220,6 +220,7 @@ const TRANSLATIONS = {
         scanQRNext: '📷 掃描 QR 碼進入下一個任務',
         scanQRNextDesc: '完成此任務後，掃描下一個任務的 QR 碼繼續旅程',
         btnScanQR: '📷 掃描 QR 碼',
+        goNextStation: '到下一關',
         backToHome: '← 返回英雄之旅首頁',
         // 第二關：山風拂面（礁溪櫻花陵園）
         rainTitle: '第二關　南樓・仰望',
@@ -975,6 +976,7 @@ const TRANSLATIONS = {
         scanQRNext: '📷 扫描 QR 码进入下一个任务',
         scanQRNextDesc: '完成此任务后，扫描下一个任务的 QR 码继续旅程',
         btnScanQR: '📷 扫描 QR 码',
+        goNextStation: '到下一关',
         backToHome: '← 返回英雄之旅首页',
         // rain.html 頁面
         rainTitle: '🌧 兰阳细雨陪伴任务',
@@ -1675,6 +1677,7 @@ const TRANSLATIONS = {
         scanQRNext: '📷 Scan QR Code to Enter Next Mission',
         scanQRNextDesc: 'After completing this mission, scan the QR code for the next mission to continue your journey',
         btnScanQR: '📷 Scan QR Code',
+        goNextStation: 'Next station',
         backToHome: '← Back to Hero Journey Home',
         // rain.html page
         rainTitle: '🌧 Lanyang Rain Companion',
@@ -2385,6 +2388,7 @@ const TRANSLATIONS = {
         scanQRNext: '📷 QRコードをスキャンして次のミッションに入る',
         scanQRNextDesc: 'このミッションを完了した後、次のミッションのQRコードをスキャンして旅を続けます',
         btnScanQR: '📷 QRコードをスキャン',
+        goNextStation: '次の関へ',
         backToHome: '← 英雄の旅ホームへ戻る',
         // rain.html ページ
         rainTitle: '🌧 蘭陽の雨の同伴',
@@ -3089,6 +3093,7 @@ const TRANSLATIONS = {
         scanQRNext: '📷 QR 코드 스캔하여 다음 미션 입장',
         scanQRNextDesc: '이 미션을 완료한 후, 다음 미션의 QR 코드를 스캔하여 여정을 계속하세요',
         btnScanQR: '📷 QR 코드 스캔',
+        goNextStation: '다음 관으로',
         backToHome: '← 영웅 여정 홈으로',
         // rain.html 페이지
         rainTitle: '🌧 란양 비 동반',
