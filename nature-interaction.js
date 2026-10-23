@@ -186,21 +186,21 @@
             missionMusicPlayer = new Audio('nanyuan-theme.mp3');
             missionMusicPlayer.preload = 'auto';
             missionMusicPlayer.addEventListener('play', function() {
-                setNatureButtonLabel('⏸️ 暫停主題曲');
+                setNatureButtonLabel('⏸️ 暫停《難得之緣》');
                 const status = document.getElementById('nature-music-status');
-                if (status) status.textContent = '正在播放南園主題曲。聽的時候，可以留下文字或錄音。';
+                if (status) status.textContent = '正在播放《難得之緣》。聽的時候，可以留下文字或錄音。';
             });
             missionMusicPlayer.addEventListener('pause', function() {
                 if (!missionMusicPlayer.ended) {
-                    setNatureButtonLabel('▶️ 繼續主題曲');
+                    setNatureButtonLabel('▶️ 繼續《難得之緣》');
                     const status = document.getElementById('nature-music-status');
-                    if (status) status.textContent = '主題曲已暫停。可以留下文字或錄音。';
+                    if (status) status.textContent = '《難得之緣》已暫停。可以留下文字或錄音。';
                 }
             });
             missionMusicPlayer.addEventListener('ended', function() {
                 setNatureButtonLabel('▶️ 再播一次');
                 const status = document.getElementById('nature-music-status');
-                if (status) status.textContent = '曲子播完了。可以留下文字或錄音。';
+                if (status) status.textContent = '《難得之緣》播完了。可以留下文字或錄音。';
             });
         }
         return missionMusicPlayer;
@@ -208,7 +208,7 @@
 
     function buildNaturePanel(content) {
         content.innerHTML = ''
-            + '<p id="nature-music-status" style="color:#334155;line-height:1.7;margin:0 0 12px;">正在播放南園主題曲。聽的時候，可以留下文字或錄音。</p>'
+            + '<p id="nature-music-status" style="color:#334155;line-height:1.7;margin:0 0 12px;">正在播放《難得之緣》。聽的時候，可以留下文字或錄音。</p>'
             + '<textarea id="nature-note-text" rows="4" placeholder="寫下此刻的感受" style="width:100%;box-sizing:border-box;border:1px solid #CBD5E1;border-radius:12px;padding:12px;font-size:1rem;"></textarea>'
             + '<div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">'
             + '<button type="button" id="nature-record-btn" class="btn-nature-interaction">錄下聲音</button>'
@@ -315,7 +315,7 @@
         if (!area || !content) return;
 
         area.style.display = 'block';
-        if (title) title.textContent = '南園主題曲';
+        if (title) title.textContent = '難得之緣';
         if (!naturePanelReady) buildNaturePanel(content);
 
         const player = ensureThemePlayer();
