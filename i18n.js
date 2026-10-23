@@ -540,7 +540,7 @@ const TRANSLATIONS = {
         aboutSongDesc2: '在各關按下「與自然互動」，也會先播放這一首。',
         musicTip: '建議使用耳機或外接喇叭聆聽。',
         lyrics: '📝 歌詞',
-        lyricsCredit: '英雄之旅@南園　主題曲',
+        lyricsCredit: '本歌曲由林攸信於2026/10/23與AI共同協作生成（通過Suno付費訂閱後，可用於個人、非商業目的的權利，並享有商業使用權）',
         lyricsVerse1Line1: '客至軒前　一壺茶溫著等人來添',
         lyricsVerse1Line2: '迎紫門開　桂花香比我先入園',
         lyricsVerse1Line3: '竹苑的風　把竹影寫成小楷一卷',

@@ -602,6 +602,11 @@
         lyricsTitle.textContent = t('lyrics', '📝 歌詞');
         natureResultContent.appendChild(lyricsTitle);
 
+        const lyricsCredit = document.createElement('p');
+        lyricsCredit.style.cssText = 'text-align:center;color:#64748B;font-size:0.9rem;line-height:1.7;margin:0 0 12px;';
+        lyricsCredit.textContent = '本歌曲由林攸信於2026/10/23與AI共同協作生成（通過Suno付費訂閱後，可用於個人、非商業目的的權利，並享有商業使用權）';
+        natureResultContent.appendChild(lyricsCredit);
+
         const lyricsList = document.createElement('div');
         lyricsList.style.cssText = 'white-space: pre-line; line-height: 1.8;';
         const lyricKeys = [
