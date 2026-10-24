@@ -206,9 +206,44 @@
         return missionMusicPlayer;
     }
 
+    function natureLyricHtml() {
+        const sections = [
+            ['lyricSec1', ['lyricsVerse1Line1', 'lyricsVerse1Line2', 'lyricsVerse1Line3', 'lyricsVerse1Line4']],
+            ['lyricSec2', ['lyricsChorus1Line1', 'lyricsChorus1Line2', 'lyricsChorus1Line3', 'lyricsChorus1Line4']],
+            ['lyricSec3', ['lyricsVerse2Line1', 'lyricsVerse2Line2']],
+            ['lyricSec4', ['lyricsVerse2Line3', 'lyricsVerse2Line4', 'lyricsVerse3Line1', 'lyricsVerse3Line2', 'lyricsVerse3Line3', 'lyricsVerse3Line4', 'lyricsChorus2Line1']],
+            ['lyricSec5', ['lyricsChorus2Line2', 'lyricsChorus2Line3']],
+            ['lyricSec6', ['lyricsChorus2Line4', 'lyricsVerse4Line1', 'lyricsVerse4Line2', 'lyricsVerse4Line3', 'lyricsVerse4Line4', 'lyricsOutroLine1', 'lyricsOutroLine2']],
+            ['lyricSec7', ['lyricsOutroLine3', 'lyricsOutroLine4']]
+        ];
+        return sections.map(function(section) {
+            const heading = '<p style="font-weight:700;color:#92400E;margin:14px 0 4px;">' + t(section[0], '') + '</p>';
+            const lines = section[1].map(function(key) {
+                return '<p style="margin:4px 0;">' + t(key, '') + '</p>';
+            }).join('');
+            return heading + lines;
+        }).join('');
+    }
+
+    function fillNatureLyrics() {
+        const box = document.getElementById('nature-lyrics');
+        if (!box) return;
+        const credit = document.getElementById('nature-lyrics-credit');
+        const rights = document.getElementById('nature-lyrics-rights');
+        if (credit) credit.textContent = t('lyricsCredit', '本歌曲由林攸信於2026/10/23與AI共同協作生成');
+        if (rights) rights.textContent = t('lyricsRights', '（通過Suno付費訂閱後，可用於個人、非商業目的的權利，並享有商業使用權）');
+        box.innerHTML = natureLyricHtml();
+    }
+
     function buildNaturePanel(content) {
         content.innerHTML = ''
             + '<p id="nature-music-status" style="color:#334155;line-height:1.7;margin:0 0 12px;">正在播放《難得之緣》。聽的時候，可以留下文字或錄音。</p>'
+            + '<div style="background:#FFFBEB;border-radius:16px;padding:12px 14px 16px;margin:0 0 16px;">'
+            + '<p style="text-align:center;font-weight:700;color:#0F172A;margin:0 0 6px;">《難得之緣》</p>'
+            + '<p id="nature-lyrics-credit" style="text-align:center;color:#64748B;font-size:0.85rem;line-height:1.6;margin:0;"></p>'
+            + '<p id="nature-lyrics-rights" style="text-align:center;color:#64748B;font-size:0.85rem;line-height:1.6;margin:0 0 8px;"></p>'
+            + '<div id="nature-lyrics" style="max-height:280px;overflow:auto;text-align:center;line-height:1.8;color:#0F172A;"></div>'
+            + '</div>'
             + '<textarea id="nature-note-text" rows="4" placeholder="寫下此刻的感受" style="width:100%;box-sizing:border-box;border:1px solid #CBD5E1;border-radius:12px;padding:12px;font-size:1rem;"></textarea>'
             + '<div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">'
             + '<button type="button" id="nature-record-btn" class="btn-nature-interaction">錄下聲音</button>'
@@ -216,6 +251,7 @@
             + '<button type="button" id="nature-save-btn" class="btn-nature-interaction">保存到心靈筆記</button>'
             + '</div>';
 
+        fillNatureLyrics();
         content.querySelector('#nature-record-btn').addEventListener('click', function(event) {
             event.preventDefault();
             toggleNatureRecording();
@@ -1281,6 +1317,10 @@
         stopScanning: stopScanning,
         triggerInteraction: triggerInteraction
     };
+
+    window.addEventListener('languageChanged', function() {
+        fillNatureLyrics();
+    });
 
     document.addEventListener('DOMContentLoaded', function() {
         if (!document.getElementById('btn-nature-interaction')) return;
