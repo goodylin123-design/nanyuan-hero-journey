@@ -186,21 +186,21 @@
             missionMusicPlayer = new Audio('nanyuan-theme.mp3?v=20261023b');
             missionMusicPlayer.preload = 'auto';
             missionMusicPlayer.addEventListener('play', function() {
-                setNatureButtonLabel('⏸️ 暫停《難得之緣》');
+                setNatureButtonLabel(t('naturePauseLabel', '⏸️ 暫停《難得之緣》'));
                 const status = document.getElementById('nature-music-status');
-                if (status) status.textContent = '正在播放《難得之緣》。聽的時候，可以留下文字或錄音。';
+                if (status) status.textContent = t('naturePlayingStatus', '正在播放《難得之緣》。聽的時候，可以留下文字或錄音。');
             });
             missionMusicPlayer.addEventListener('pause', function() {
                 if (!missionMusicPlayer.ended) {
-                    setNatureButtonLabel('▶️ 繼續《難得之緣》');
+                    setNatureButtonLabel(t('natureResumeLabel', '▶️ 繼續《難得之緣》'));
                     const status = document.getElementById('nature-music-status');
-                    if (status) status.textContent = '《難得之緣》已暫停。可以留下文字或錄音。';
+                    if (status) status.textContent = t('naturePausedStatus', '《難得之緣》已暫停。可以留下文字或錄音。');
                 }
             });
             missionMusicPlayer.addEventListener('ended', function() {
-                setNatureButtonLabel('▶️ 再播一次');
+                setNatureButtonLabel(t('natureReplayLabel', '▶️ 再播一次'));
                 const status = document.getElementById('nature-music-status');
-                if (status) status.textContent = '《難得之緣》播完了。可以留下文字或錄音。';
+                if (status) status.textContent = t('natureEndedStatus', '《難得之緣》播完了。可以留下文字或錄音。');
             });
         }
         return missionMusicPlayer;
@@ -237,18 +237,18 @@
 
     function buildNaturePanel(content) {
         content.innerHTML = ''
-            + '<p id="nature-music-status" style="color:#334155;line-height:1.7;margin:0 0 12px;">正在播放《難得之緣》。聽的時候，可以留下文字或錄音。</p>'
+            + '<p id="nature-music-status" style="color:#334155;line-height:1.7;margin:0 0 12px;">' + t('naturePlayingStatus', '正在播放《難得之緣》。聽的時候，可以留下文字或錄音。') + '</p>'
             + '<div style="background:#FFFBEB;border-radius:16px;padding:12px 14px 16px;margin:0 0 16px;">'
-            + '<p style="text-align:center;font-weight:700;color:#0F172A;margin:0 0 6px;">《難得之緣》</p>'
+            + '<p id="nature-song-title" style="text-align:center;font-weight:700;color:#0F172A;margin:0 0 6px;">' + t('natureSongTitle', '《難得之緣》') + '</p>'
             + '<p id="nature-lyrics-credit" style="text-align:center;color:#64748B;font-size:0.85rem;line-height:1.6;margin:0;"></p>'
             + '<p id="nature-lyrics-rights" style="text-align:center;color:#64748B;font-size:0.85rem;line-height:1.6;margin:0 0 8px;"></p>'
             + '<div id="nature-lyrics" style="max-height:280px;overflow:auto;text-align:center;line-height:1.8;color:#0F172A;"></div>'
             + '</div>'
-            + '<textarea id="nature-note-text" rows="4" placeholder="寫下此刻的感受" style="width:100%;box-sizing:border-box;border:1px solid #CBD5E1;border-radius:12px;padding:12px;font-size:1rem;"></textarea>'
+            + '<textarea id="nature-note-text" rows="4" placeholder="' + t('natureNotePlaceholder', '寫下此刻的感受') + '" style="width:100%;box-sizing:border-box;border:1px solid #CBD5E1;border-radius:12px;padding:12px;font-size:1rem;"></textarea>'
             + '<div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">'
-            + '<button type="button" id="nature-record-btn" class="btn-nature-interaction">錄下聲音</button>'
+            + '<button type="button" id="nature-record-btn" class="btn-nature-interaction">' + t('natureRecordLabel', '錄下聲音') + '</button>'
             + '<p id="nature-record-status" style="min-height:1.2em;margin:0;color:#64748B;"></p>'
-            + '<button type="button" id="nature-save-btn" class="btn-nature-interaction">保存到心靈筆記</button>'
+            + '<button type="button" id="nature-save-btn" class="btn-nature-interaction">' + t('natureSaveLabel', '保存到心靈筆記') + '</button>'
             + '</div>';
 
         fillNatureLyrics();
@@ -280,7 +280,7 @@
             return;
         }
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
-            if (status) status.textContent = '這個瀏覽器不能錄音，請改留文字。';
+            if (status) status.textContent = t('natureNoRecorder', '這個瀏覽器不能錄音，請改留文字。');
             return;
         }
         try {
@@ -295,14 +295,14 @@
             natureRecorder.onstop = function() {
                 stream.getTracks().forEach(function(track) { track.stop(); });
                 natureBlob = new Blob(natureChunks, { type: natureRecorder.mimeType || natureMime || 'audio/webm' });
-                if (status) status.textContent = '錄音完成，可以保存。';
-                if (button) button.textContent = '錄下聲音';
+                if (status) status.textContent = t('natureRecorded', '錄音完成，可以保存。');
+                if (button) button.textContent = t('natureRecordLabel', '錄下聲音');
             };
             natureRecorder.start();
-            if (status) status.textContent = '正在錄音…再按一次結束。';
-            if (button) button.textContent = '停止錄音';
+            if (status) status.textContent = t('natureRecording', '正在錄音…再按一次結束。');
+            if (button) button.textContent = t('natureStopRecord', '停止錄音');
         } catch (err) {
-            if (status) status.textContent = '無法使用麥克風，請改留文字。';
+            if (status) status.textContent = t('natureMicDenied', '無法使用麥克風，請改留文字。');
         }
     }
 
@@ -316,13 +316,13 @@
         const status = document.getElementById('nature-record-status');
         const text = textEl ? textEl.value.trim() : '';
         if (!text && !natureBlob) {
-            if (status) status.textContent = '先寫一句，或錄一段聲音。';
+            if (status) status.textContent = t('natureNeedInput', '先寫一句，或錄一段聲音。');
             return;
         }
         const note = {
             id: Date.now(),
             date: new Date().toLocaleString('zh-TW'),
-            content: text || '（語音記錄）',
+            content: text || t('natureVoiceOnly', '（語音記錄）'),
             emotion: '平靜',
             mission: natureTaskKey(),
             audio: !!natureBlob,
@@ -341,7 +341,7 @@
         }
         natureBlob = null;
         if (textEl) textEl.value = '';
-        if (status) status.textContent = '已保存到心靈筆記。';
+        if (status) status.textContent = t('natureSaved', '已保存到心靈筆記。');
     }
 
     function startNatureMoment() {
@@ -351,7 +351,7 @@
         if (!area || !content) return;
 
         area.style.display = 'block';
-        if (title) title.textContent = '難得之緣';
+        if (title) title.textContent = t('natureSongPlain', '難得之緣');
         if (!naturePanelReady) buildNaturePanel(content);
 
         const player = ensureThemePlayer();
@@ -364,7 +364,7 @@
         if (playPromise && typeof playPromise.catch === 'function') {
             playPromise.catch(function() {
                 const status = document.getElementById('nature-music-status');
-                if (status) status.textContent = '瀏覽器擋住了自動播放。請再按一次「與自然互動」。';
+                if (status) status.textContent = t('natureAutoplayBlocked', '瀏覽器擋住了自動播放。請再按一次「與自然互動」。');
             });
         }
     }
@@ -1318,8 +1318,39 @@
         triggerInteraction: triggerInteraction
     };
 
+    function refreshNatureChrome() {
+        const songTitle = document.getElementById('nature-song-title');
+        if (songTitle) songTitle.textContent = t('natureSongTitle', '《難得之緣》');
+        const note = document.getElementById('nature-note-text');
+        if (note) note.placeholder = t('natureNotePlaceholder', '寫下此刻的感受');
+        const save = document.getElementById('nature-save-btn');
+        if (save) save.textContent = t('natureSaveLabel', '保存到心靈筆記');
+        const rec = document.getElementById('nature-record-btn');
+        const recording = natureRecorder && natureRecorder.state === 'recording';
+        if (rec) rec.textContent = recording ? t('natureStopRecord', '停止錄音') : t('natureRecordLabel', '錄下聲音');
+        const area = document.getElementById('nature-result-area');
+        const resultTitle = document.getElementById('nature-result-title');
+        if (resultTitle && area && area.style.display !== 'none') {
+            resultTitle.textContent = t('natureSongPlain', '難得之緣');
+        }
+        const status = document.getElementById('nature-music-status');
+        const player = missionMusicPlayer;
+        if (!player || !status) return;
+        if (!player.paused && !player.ended) {
+            status.textContent = t('naturePlayingStatus', '正在播放《難得之緣》。聽的時候，可以留下文字或錄音。');
+            setNatureButtonLabel(t('naturePauseLabel', '⏸️ 暫停《難得之緣》'));
+        } else if (player.ended) {
+            status.textContent = t('natureEndedStatus', '《難得之緣》播完了。可以留下文字或錄音。');
+            setNatureButtonLabel(t('natureReplayLabel', '▶️ 再播一次'));
+        } else if (player.currentTime > 0) {
+            status.textContent = t('naturePausedStatus', '《難得之緣》已暫停。可以留下文字或錄音。');
+            setNatureButtonLabel(t('natureResumeLabel', '▶️ 繼續《難得之緣》'));
+        }
+    }
+
     window.addEventListener('languageChanged', function() {
         fillNatureLyrics();
+        refreshNatureChrome();
     });
 
     document.addEventListener('DOMContentLoaded', function() {

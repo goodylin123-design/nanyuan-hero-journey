@@ -46,18 +46,41 @@ function hasAll(completed, keys) {
     return keys.every(function(key) { return completed.indexOf(key) !== -1; });
 }
 
+function ht(key, fallback) {
+    if (window.I18n && typeof window.I18n.t === 'function') {
+        const value = window.I18n.t(key);
+        if (value && value !== key) return value;
+    }
+    return fallback;
+}
+
+const HERO_LINE_KEYS = {
+    wave: 'heroLineWave',
+    rain: 'heroLineRain',
+    dawn: 'heroLineDawn',
+    mission4: 'heroLineMission4',
+    mission5: 'heroLineMission5',
+    mission6: 'heroLineMission6',
+    mission7: 'heroLineMission7',
+    mission8: 'heroLineMission8',
+    mission9: 'heroLineMission9',
+    mission10: 'heroLineMission10'
+};
+
 function getHeroGreeting(progress) {
     const completed = (progress && progress.completed) || [];
     if (guestIsVisit()) {
-        if (hasAll(completed, VISIT_TASKS)) return HERO_VISIT_DONE;
-        return HERO_OPENING;
+        if (hasAll(completed, VISIT_TASKS)) return ht('heroVisitDone', HERO_VISIT_DONE);
+        return ht('heroOpening', HERO_OPENING);
     }
-    if (hasAll(completed, ALL_TASKS)) return HERO_STAY_DONE;
-    return HERO_OPENING;
+    if (hasAll(completed, ALL_TASKS)) return ht('heroStayDone', HERO_STAY_DONE);
+    return ht('heroOpening', HERO_OPENING);
 }
 
 function getHeroTransition(taskKey) {
-    return HERO_TRANSITIONS[taskKey] || '';
+    const key = HERO_LINE_KEYS[taskKey];
+    const fallback = HERO_TRANSITIONS[taskKey] || '';
+    return key ? ht(key, fallback) : fallback;
 }
 
 function getHeroCompletionFeedback(taskKey) {
